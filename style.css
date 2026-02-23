@@ -1,0 +1,212 @@
+/* ===============================
+   THEME SYSTEM
+=============================== */
+
+:root {
+    --bg: #ffffff;
+    --surface: #f3f4f6;
+    --text: #111827;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --border: #e5e7eb;
+  }
+  
+  body.dark {
+    --bg: #0f1115;
+    --surface: #171a21;
+    --text: #e6e6e6;
+    --muted: #9ca3af;
+    --accent: #3b82f6;
+    --border: #252a34;
+  }
+  
+  /* ===============================
+     BASE
+  =============================== */
+  
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-size: 16px;
+  }
+  
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  /* ===============================
+     NAVBAR
+  =============================== */
+  
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .nav-left,
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .nav-center {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .project-title {
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  
+  .nav-btn,
+  .mode-btn,
+  .chapter-select,
+  .nav-link {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  
+  .nav-btn:hover,
+  .mode-btn:hover,
+  .chapter-select:hover,
+  .nav-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  
+  .chapter-select {
+    background: var(--surface);
+    min-width: 130px;
+  }
+  
+  /* ===============================
+     MAIN
+  =============================== */
+  
+  main {
+    max-width: 1000px;
+    margin: 80px auto;
+    padding: 0 32px;
+  }
+  
+  /* ===============================
+     SPEAKER
+  =============================== */
+  
+  .speaker {
+    margin-top: 56px;
+    margin-bottom: 12px;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  
+  /* ===============================
+     PARALLEL MODE
+  =============================== */
+  
+  .parallel {
+    display: grid;
+    gap: 28px 80px;
+  }
+  
+  .parallel .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  
+  .greek {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  
+  .spanish {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+  
+  /* ===============================
+     INTERLINEAR MODE
+  =============================== */
+  
+  .interlinear {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  
+  .interlinear .greek {
+    font-size: 1.08rem;
+    line-height: 1.85;
+    color: var(--text);
+  }
+  
+  .interlinear .spanish {
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-top: 6px;
+    margin-bottom: 24px;
+    border-left: 2px solid var(--border);
+    padding-left: 14px;
+  }
+  
+  /* ===============================
+     RESPONSIVE
+  =============================== */
+  
+  @media (max-width: 900px) {
+    main {
+      margin: 60px auto;
+    }
+  
+    .parallel .row {
+      gap: 40px;
+    }
+  }
+  
+  @media (max-width: 720px) {
+  
+    .parallel .row {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  
+    .navbar {
+      padding: 12px 18px;
+    }
+  
+    main {
+      padding: 0 20px;
+    }
+  }

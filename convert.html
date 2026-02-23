@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Convert TXT to JSON</title>
+<style>
+  body { font-family: monospace; padding: 20px; }
+  pre { white-space: pre-wrap; word-wrap: break-word; }
+</style>
+</head>
+<body>
+
+<h2>Convertir text.txt → gr.json</h2>
+<input type="file" id="fileInput">
+<pre id="output"></pre>
+
+<script>
+document.getElementById("fileInput").addEventListener("change", function(e) {
+
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function() {
+
+    const raw = reader.result
+      .replace(/\r\n/g, "\n")
+      .replace(/\u2028|\u2029/g, "\n")
+      .trim();
+
+    const chapterRegex = /\[(\d+)\]([\s\S]*?)(?=\[\d+\]|$)/g;
+
+    let chapters = [];
+    let match;
+
+    while ((match = chapterRegex.exec(raw)) !== null) {
+
+      const chapterId = parseInt(match[1]);
+      const content = match[2].trim();
+
+      let units = [];
+      let unitCounter = 1;
+
+      // 🔥 CLAVE: dividir por hablantes estructurales
+      const dialogueRegex = /(Μένιππος|Ἕταιρος)\s*([\s\S]*?)(?=(Μένιππος|Ἕταιρος)|$)/g;
+
+      let dialogueMatch;
+
+      while ((dialogueMatch = dialogueRegex.exec(content)) !== null) {
+
+        const speaker = dialogueMatch[1];
+        const speechBlock = dialogueMatch[2].trim();
+
+        if (!speechBlock) continue;
+
+        // dividir en frases
+        const sentences = speechBlock.match(/[^.;·:]+[.;·:]?/g);
+        if (!sentences) continue;
+
+        for (let sentence of sentences) {
+          const text = sentence.trim();
+          if (!text) continue;
+
+          units.push({
+            id: `${chapterId}.${unitCounter++}`,
+            speaker: speaker,
+            text: text
+          });
+        }
+      }
+
+      chapters.push({
+        id: chapterId,
+        units: units
+      });
+    }
+
+    const json = JSON.stringify({ chapters }, null, 2);
+    document.getElementById("output").textContent = json;
+  };
+
+  reader.readAsText(file);
+});
+</script>
+
+</body>
+</html>
