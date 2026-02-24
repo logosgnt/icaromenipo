@@ -29,52 +29,77 @@ document.getElementById("fileInput").addEventListener("change", function(e) {
       .replace(/\u2028|\u2029/g, "\n")
       .trim();
 
-    const chapterRegex = /\[(\d+)\]([\s\S]*?)(?=\[\d+\]|$)/g;
+    // Detecta capítulos Y hablantes en orden secuencial
+    const tokenRegex = /\[(\d+)\]|(Μένιππος|Ἕταιρος):--/g;
 
     let chapters = [];
-    let match;
+    let currentChapter = null;
+    let currentSpeaker = null;
+    let buffer = "";
+    let unitCounter = 1;
 
-    while ((match = chapterRegex.exec(raw)) !== null) {
+    function flushBuffer() {
+      if (!buffer.trim() || !currentChapter || !currentSpeaker) return;
 
-      const chapterId = parseInt(match[1]);
-      const content = match[2].trim();
+      const clean = buffer
+        .replace(/\n+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 
-      let units = [];
-      let unitCounter = 1;
+      const sentences = clean.match(/[^.;·:]+[.;·:]?/g);
+      if (!sentences) return;
 
-      // 🔥 CLAVE: dividir por hablantes estructurales
-      const dialogueRegex = /(Μένιππος|Ἕταιρος)\s*([\s\S]*?)(?=(Μένιππος|Ἕταιρος)|$)/g;
+      for (let sentence of sentences) {
+        const text = sentence.trim();
+        if (!text) continue;
 
-      let dialogueMatch;
-
-      while ((dialogueMatch = dialogueRegex.exec(content)) !== null) {
-
-        const speaker = dialogueMatch[1];
-        const speechBlock = dialogueMatch[2].trim();
-
-        if (!speechBlock) continue;
-
-        // dividir en frases
-        const sentences = speechBlock.match(/[^.;·:]+[.;·:]?/g);
-        if (!sentences) continue;
-
-        for (let sentence of sentences) {
-          const text = sentence.trim();
-          if (!text) continue;
-
-          units.push({
-            id: `${chapterId}.${unitCounter++}`,
-            speaker: speaker,
-            text: text
-          });
-        }
+        currentChapter.units.push({
+          id: `${currentChapter.id}.${unitCounter++}`,
+          speaker: currentSpeaker,
+          text: text
+        });
       }
 
-      chapters.push({
-        id: chapterId,
-        units: units
-      });
+      buffer = "";
     }
+
+    let match;
+    let lastIndex = 0;
+
+    while ((match = tokenRegex.exec(raw)) !== null) {
+
+      // texto entre tokens
+      buffer += raw.slice(lastIndex, match.index);
+      lastIndex = tokenRegex.lastIndex;
+
+      // Si encontramos capítulo
+      if (match[1]) {
+        flushBuffer();
+
+        const chapterId = parseInt(match[1]);
+
+        currentChapter = {
+          id: chapterId,
+          units: []
+        };
+
+        chapters.push(currentChapter);
+        unitCounter = 1;
+
+        continue;
+      }
+
+      // Si encontramos hablante
+      if (match[2]) {
+        flushBuffer();
+        currentSpeaker = match[2];
+        continue;
+      }
+    }
+
+    // Flush final
+    buffer += raw.slice(lastIndex);
+    flushBuffer();
 
     const json = JSON.stringify({ chapters }, null, 2);
     document.getElementById("output").textContent = json;
